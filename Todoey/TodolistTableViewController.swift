@@ -9,8 +9,9 @@
 import UIKit
 
 class TodolistTableViewController: UITableViewController {
+    // array will be mutable means var, because user want to add new item.
 
-    let itemArray = ["Buy eggs","Buy bread","Go to office"]
+    var itemArray = ["Buy eggs","Buy bread","Go to office"]
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -46,6 +47,36 @@ class TodolistTableViewController: UITableViewController {
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    // MARK - add button to add item.
+    
+    
+    @IBAction func addItemButtonPressed(_ sender: UIBarButtonItem) {
+        var textField = UITextField()
+        
+    // pop up alert with title and message.
+        let alert = UIAlertController(title: "Add new Todoey item", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "add new item", style: .default) { (action) in
+            // what will happen when user click add button on our alert.
+            
+            // append add new user data
+      self.itemArray.append(textField.text!)
+            // Reload the data in table view.
+            self.tableView.reloadData()
+            
+        }
+        // now add textField in alert which user enter their item
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
+          
+            
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+        
+    }
+    
     }
     
     
