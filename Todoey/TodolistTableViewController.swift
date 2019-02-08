@@ -12,9 +12,19 @@ class TodolistTableViewController: UITableViewController {
     // array will be mutable means var, because user want to add new item.
 
     var itemArray = ["Buy eggs","Buy bread","Go to office"]
+    
+   
+// we use user default for storing the data back when app terminate.
+    let defaults = UserDefaults.standard
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        //Retrive the user data.
+        if let  items =   defaults.array(forKey: "TodoListArray") as? [String]{
+            itemArray = items
+        }
+        
     }
     
 // Mark - TableView Datasourse methods.
@@ -60,6 +70,10 @@ class TodolistTableViewController: UITableViewController {
             
             // append add new user data
       self.itemArray.append(textField.text!)
+            
+        // data save in array when app again launching.
+            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            
             // Reload the data in table view.
             self.tableView.reloadData()
             
