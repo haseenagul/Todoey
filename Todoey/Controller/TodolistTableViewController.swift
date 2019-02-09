@@ -9,21 +9,41 @@
 import UIKit
 
 class TodolistTableViewController: UITableViewController {
+    
     // array will be mutable means var, because user want to add new item.
-
-    var itemArray = ["Buy eggs","Buy bread","Go to office"]
+    var itemArray = [item]()
     
    
 // we use user default for storing the data back when app terminate.
     let defaults = UserDefaults.standard
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+    // iniliaze new object of class.
+        let newItem = item()
+        newItem.title = "Buy eggs"
+        itemArray.append(newItem)
+        
+        let newItem1 = item()
+        newItem1.title = "Buy Milk"
+        itemArray.append(newItem1)
+        
+        let newItem2 = item()
+        newItem2.title = "Buy pamper"
+        itemArray.append(newItem2)
+        
+        
         //Retrive the user data.
-        if let  items =   defaults.array(forKey: "TodoListArray") as? [String]{
+        if let  items = defaults.array(forKey: "TodoListArray") as? [item]{
             itemArray = items
         }
+    
+        
+        
+        
+        
         
     }
     
@@ -34,11 +54,36 @@ class TodolistTableViewController: UITableViewController {
         
          return itemArray.count
     }
+    
+    
     // ask the Datasourse to insert particuler data in parituler location in tableView.
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // reuse the cells with indexpath.
-         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row]
+        
+        
+   
+       
+       // reuse the cells with indexpath
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
+        let item = itemArray[indexPath.row]
+        
+        // when user add new item its store in array  and user can check and uncheck that item.
+        cell.textLabel?.text = item.title
+        
+        
+        
+        
+        // Ternery Operator.
+        // value = condition ? valueIfTrue : valueIfFalse.
+        // both lines of code are working same .
+        cell.accessoryType = item.done  ? .checkmark : .none
+        
+//        if item.done == true{
+//            cell.accessoryType = .checkmark
+//        }else{
+//           cell.accessoryType = .none
+//        }
+        
+        
         return cell
         
     }
@@ -48,15 +93,22 @@ class TodolistTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
        // print(itemArray[indexPath.row])
+         // for user check or uncheck the item in tableview
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        
+       
+        //data reloaded with user enter new data
+        tableView.reloadData()
+        
+        
         
         // when user select row it will show a check mark and user again click row it will be uncheck.
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark{
-             tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        } else {
-             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    
+    
     // MARK - add button to add item.
     
     
@@ -66,18 +118,26 @@ class TodolistTableViewController: UITableViewController {
     // pop up alert with title and message.
         let alert = UIAlertController(title: "Add new Todoey item", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "add new item", style: .default) { (action) in
-            // what will happen when user click add button on our alert.
+            
+            
+        // what will happen when user click add button on our alert.
+            let newItem = item()
+            newItem.title = textField.text!
+            
             
             // append add new user data
-      self.itemArray.append(textField.text!)
+      self.itemArray.append(newItem)
+            
             
         // data save in array when app again launching.
             self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            
             
             // Reload the data in table view.
             self.tableView.reloadData()
             
         }
+        
         // now add textField in alert which user enter their item
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create new item"
