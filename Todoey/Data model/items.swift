@@ -6,8 +6,9 @@
 //  Copyright © 2019 lecture. All rights reserved.
 //
 
+
 import Foundation
-class item{
+class item: Codable{
     var title : String = ""
     var done : Bool = false
 }

@@ -13,13 +13,27 @@ class TodolistTableViewController: UITableViewController {
     // array will be mutable means var, because user want to add new item.
     var itemArray = [item]()
     
+    // save costom data type of users in file directory.
+    //FileManager is create object for files, and default share and return that files and objects.
+    // userDomainMask is s home directory to install your personal data.
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Item.Plist")
+    
+    
    
 // we use user default for storing the data back when app terminate.
-    let defaults = UserDefaults.standard
+   // let defaults = UserDefaults.standard
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        
+        print(dataFilePath!)
+        
+        
+        
+        
         
     // iniliaze new object of class.
         let newItem = item()
@@ -35,17 +49,19 @@ class TodolistTableViewController: UITableViewController {
         itemArray.append(newItem2)
         
         
-        //Retrive the user data.
-        if let  items = defaults.array(forKey: "TodoListArray") as? [item]{
-            itemArray = items
-        }
-    
-        
-        
-        
+        //Retrive the user data and its a costom data type (item)
+     //  if let  items =   defaults.array(forKey: "TodoListArray") as? [item]{
+        //    itemArray = items
+        //}
         
         
     }
+        
+        
+        
+        
+        
+    
     
 // Mark - TableView Datasourse methods.
     
@@ -96,10 +112,12 @@ class TodolistTableViewController: UITableViewController {
          // for user check or uncheck the item in tableview
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
+        saveItems()
+        
         
        
         //data reloaded with user enter new data
-        tableView.reloadData()
+        //tableView.reloadData()
         
         
         
@@ -124,18 +142,14 @@ class TodolistTableViewController: UITableViewController {
             let newItem = item()
             newItem.title = textField.text!
             
-            
-            // append add new user data
+        // append add new user data
       self.itemArray.append(newItem)
             
             
-        // data save in array when app again launching.
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            // call the savefunction
+            self.saveItems()
             
-            
-            // Reload the data in table view.
-            self.tableView.reloadData()
-            
+        
         }
         
         // now add textField in alert which user enter their item
@@ -151,9 +165,22 @@ class TodolistTableViewController: UITableViewController {
         
     }
     
+// MARK - Model manupulation Methods.
+func saveItems (){
+    
+    // data save in array when app again launching and its reterive the costom data from costom plist.
+    let encoder = PropertyListEncoder()
+    
+    do{
+        let data = try encoder.encode(itemArray)
+        try data.write(to: dataFilePath!)
+    } catch{
+        print("Error encoding item array, \(error)")
     }
+        // Reload the data in table view.
+       self.tableView.reloadData()
     
-    
+}
 
 
-
+}
