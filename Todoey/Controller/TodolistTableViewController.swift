@@ -35,19 +35,20 @@ class TodolistTableViewController: UITableViewController {
         
         
         
-    // iniliaze new object of class.
-        let newItem = item()
-        newItem.title = "Buy eggs"
-        itemArray.append(newItem)
+//    // iniliaze new object of class.
+//        let newItem = item()
+//        newItem.title = "Buy eggs"
+//        itemArray.append(newItem)
+//
+//        let newItem1 = item()
+//        newItem1.title = "Buy Milk"
+//        itemArray.append(newItem1)
+//
+//        let newItem2 = item()
+//        newItem2.title = "Buy pamper"
+//        itemArray.append(newItem2)
         
-        let newItem1 = item()
-        newItem1.title = "Buy Milk"
-        itemArray.append(newItem1)
-        
-        let newItem2 = item()
-        newItem2.title = "Buy pamper"
-        itemArray.append(newItem2)
-        
+        loadItems()
         
         //Retrive the user data and its a costom data type (item)
      //  if let  items =   defaults.array(forKey: "TodoListArray") as? [item]{
@@ -181,6 +182,20 @@ func saveItems (){
        self.tableView.reloadData()
     
 }
+    func loadItems(){
+        if let data =  try? Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            do{
+            itemArray = try decoder.decode([item].self, from: data)
+            }
+            catch{
+                print("Error encoding item array,\(error)")
+            
+        }
+        }
+        
+    }
+
 
 
 }
