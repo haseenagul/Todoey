@@ -94,14 +94,17 @@ class TodolistTableViewController: UITableViewController {
     // Mark - TableView Delegate Method.
     // when user click on cell it will be check ✅ or unchecked.
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+ 
         
-        // first we will delete the item then remove from data.
+        
+// first we will delete the item then remove from data.
 //        context.delete(itemArray[indexPath.row])
 //        itemArray.remove(at: indexPath.row)
 //
         
         
          // for user check or uncheck the item in tableview
+     
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
         saveItems()
@@ -191,6 +194,9 @@ func saveItems (){
         catch{
             print("Error feching data from persistent container(context)\(error)")
         }
+        
+        tableView.reloadData()
+        
     }
     
  
@@ -200,7 +206,7 @@ func saveItems (){
 extension TodolistTableViewController: UISearchBarDelegate{
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
           let request : NSFetchRequest<Item> = Item.fetchRequest()
-        request.predicate = NSPredicate(format: "title CONSTAINS [cd] %@ ", searchBar.text!)
+        request.predicate = NSPredicate(format: "title CONTAINS [cd] %@ ", searchBar.text!)
        
         
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
@@ -209,7 +215,19 @@ extension TodolistTableViewController: UISearchBarDelegate{
         
       
     }
-    
+    // when user end their searching the tabel will again load items.
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0{
+            loadItems()
+            
+            DispatchQueue.main.async{
+            
+                
+                searchBar.resignFirstResponder()
+            }
+            
+        }
+    }
     
     
 }
