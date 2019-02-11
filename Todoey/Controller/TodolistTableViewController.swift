@@ -7,17 +7,18 @@
 //
 
 import UIKit
+import CoreData
 
 class TodolistTableViewController: UITableViewController {
     
     // array will be mutable means var, because user want to add new item.
-    var itemArray = [item]()
+    var itemArray = [Item]()
     
     // save costom data type of users in file directory.
     //FileManager is create object for files, and default share and return that files and objects.
     // userDomainMask is s home directory to install your personal data.
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Item.Plist")
-    
+   // let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Item.Plist")
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
    
 // we use user default for storing the data back when app terminate.
@@ -29,25 +30,10 @@ class TodolistTableViewController: UITableViewController {
         
         
         
-        print(dataFilePath!)
+        print (FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
-        
-        
-        
-        
-//    // iniliaze new object of class.
-//        let newItem = item()
-//        newItem.title = "Buy eggs"
-//        itemArray.append(newItem)
-//
-//        let newItem1 = item()
-//        newItem1.title = "Buy Milk"
-//        itemArray.append(newItem1)
-//
-//        let newItem2 = item()
-//        newItem2.title = "Buy pamper"
-//        itemArray.append(newItem2)
-        
+   
+       
         loadItems()
         
         //Retrive the user data and its a costom data type (item)
@@ -109,7 +95,12 @@ class TodolistTableViewController: UITableViewController {
     // when user click on cell it will be check ✅ or unchecked.
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-       // print(itemArray[indexPath.row])
+        // first we will delete the item then remove from data.
+//        context.delete(itemArray[indexPath.row])
+//        itemArray.remove(at: indexPath.row)
+//
+        
+        
          // for user check or uncheck the item in tableview
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
@@ -140,8 +131,11 @@ class TodolistTableViewController: UITableViewController {
             
             
         // what will happen when user click add button on our alert.
-            let newItem = item()
+           
+            
+            let newItem = Item(context: self.context)
             newItem.title = textField.text!
+            newItem.done = false
             
         // append add new user data
       self.itemArray.append(newItem)
@@ -166,36 +160,57 @@ class TodolistTableViewController: UITableViewController {
         
     }
     
-// MARK - Model manupulation Methods.
+    //MARK: - Model manupulation Methods
+   //.....................................
+    
 func saveItems (){
     
     // data save in array when app again launching and its reterive the costom data from costom plist.
-    let encoder = PropertyListEncoder()
+   // let encoder = PropertyListEncoder()
     
     do{
-        let data = try encoder.encode(itemArray)
-        try data.write(to: dataFilePath!)
+       
+        
+        try context.save()
+//        let data = try encoder.encode(itemArray)
+//        try data.write(to: dataFilePath!)
     } catch{
-        print("Error encoding item array, \(error)")
+        print("Error saving context, \(error)")
     }
         // Reload the data in table view.
        self.tableView.reloadData()
     
 }
-    func loadItems(){
-        if let data =  try? Data(contentsOf: dataFilePath!){
-            let decoder = PropertyListDecoder()
-            do{
-            itemArray = try decoder.decode([item].self, from: data)
-            }
-            catch{
-                print("Error encoding item array,\(error)")
-            
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest())
+    {
+        // To retreive and fetch the data from persistent container.
+        //let request : NSFetchRequest<Item> = Item.fetchRequest()
+        do{
+      itemArray =  try context.fetch(request)
         }
+        catch{
+            print("Error feching data from persistent container(context)\(error)")
         }
-        
     }
-
-
-
+    
+ 
 }
+// MARK: - search bar methods.
+// extention is used to extent the TODOEY functionality.
+extension TodolistTableViewController: UISearchBarDelegate{
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+          let request : NSFetchRequest<Item> = Item.fetchRequest()
+        request.predicate = NSPredicate(format: "title CONSTAINS [cd] %@ ", searchBar.text!)
+       
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        loadItems(with: request)
+
+        
+      
+    }
+    
+    
+    
+}
+
